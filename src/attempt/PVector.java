@@ -1,5 +1,5 @@
 package attempt;
-
+//Depreciated since Vector2d and PointDir has "replaced" it
 public class PVector {
 
 	vector V;

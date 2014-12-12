@@ -1,6 +1,6 @@
 package attempt;
 
-
+//Depreciated for Vector2d
 public class point {
 
 	float x,y,z;

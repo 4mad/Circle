@@ -1,5 +1,6 @@
 package attempt;
 
+//Found to be useless but has future potential
 public class PointDir {
 	
 	public Vector2d Point;

@@ -1,5 +1,6 @@
 package attempt;
 
+//Depreciated since 2d is all that is necessary
 public class vector {
 
 	double x,y,z;

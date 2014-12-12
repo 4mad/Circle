@@ -45,17 +45,17 @@ public class Vector2d {
 	public Vector2d add(Vector2d a)	{
 		double i = this.x + a.getX();
 		double j = this.y + a.getY();
-		return new Vector2d(i,j); 
+		return new Vector2d(i, j); 
 	}
 	
 	public Vector2d subtract(Vector2d a) {
 		double i = this.x - a.getX();
 		double j = this.y - a.getY();
-		return new Vector2d(i,j);	 
+		return new Vector2d(i, j);	 
 	}
 	
 	public double magnitude() {
-		return Math.sqrt(Math.pow(this.x,2)+Math.pow(this.y,2));
+		return Math.sqrt(Math.pow(this.x,2) + Math.pow(this.y,2));
 	}
 		
 	public double cross(Vector2d a) {
@@ -72,11 +72,11 @@ public class Vector2d {
 	
 	public Vector2d unitize()	{
 		if (this.x == 0 & this.y == 0) return this;
-		return new Vector2d(this.x/this.magnitude(),this.y/this.magnitude());			
+		return new Vector2d(this.x/this.magnitude(), this.y/this.magnitude());			
 	}
 	
 	public Vector2d scalarMulti(double a) {
-		return new Vector2d(a*this.x,a*this.y);
+		return new Vector2d(a*this.x, a*this.y);
 	}
 	
 	public double angleBetween(Vector2d a){
@@ -84,15 +84,19 @@ public class Vector2d {
 	}
 	
 	public Vector2d tangent(){
-		return new Vector2d(-this.y,this.x);
+		return new Vector2d(-this.y, this.x);
 	}
 	
 	public Vector2d deepCopy() {
-		return new Vector2d(x,y);
+		return new Vector2d(x, y);
 	}
 	
 	public Vector2d integizerFloor() {
-		return new Vector2d(Math.floor(this.x),Math.floor(this.y));
+		return new Vector2d(Math.floor(this.x), Math.floor(this.y));
+	}
+	
+	public Vector2d integizerCeil() {
+		return new Vector2d(Math.ceil(this.x), Math.ceil(this.y));
 	}
 	
 	public double distV(Vector2d comp) {

@@ -8,19 +8,26 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 //Change Log
-	//Storage is now just points not slope
-	//As a result adding is just adding and checking for ~same points
-	//
+//Storage is now just points not slope
+//As a result Adding is just adding and checking for ~same points
+//Added Least Square Line Estimation
+//New Pathfinder (shoddy but ehh) does steps 1-3 and ~4(only classifies lines)
+//Added rendering of line of best fit
 
 public class NowAddPathFinding {
 	//TOO DOO make an interface, randomizer for angle of bounce|Should i wrap storage's elements into new 2vectors object, or new data structure???
 	//TOO DOO VOO DOO WHOO DOO VOO DOO I DOO VOO DOO U DOO TOO? Estimates shape and avoids it live 
 	//Make a world generator
+	//Make a map discovery program
 	//make a classification program (circle, line, etc...) include kasa circle guesser
 	//some kind of way to get rid of floating point error 10^-15 == 0
 	//guess corners too
 	//Create an arch object later
-
+	//make the auto renders show sugetions of weather to update or not, visual feedback on changes
+	//Mouse interface for that?
+	
+								/////////////////////TITLE AND AUTHOR ON ALL OF THESE NOW!!
+	
 	//Error on bounce is do to position refresh rate, decrease Vector2d size, ??I Forgot what this means. halp
 	//increase number of nanoseconds each frame waits ??Again i forgot
 	static final int worldWidth = 600;
@@ -28,17 +35,18 @@ public class NowAddPathFinding {
 
 	static final Vector2d worldDim = new Vector2d(worldWidth,worldHeight);
 
-								//What i'm doing now
-	//find pathfinding error
+						//What i'm doing now
+	//find pathfinding errors/ clean it up
+	//figure out if whole line or just that explored region should be investigated.
+	//this is the start of major things such as different storages for different types of borders
+	//also pathfinder complications and connecting different identities. MAP BUILDING w'ell call it
 	//make adding return boolean and put it into pathFinding not in collision
-	//adding a line of best fit
-	//make a catch for the pathfinder that quits it if 50 checks have happened in a row
 	//make sure to use .GEt and .Set instead of .x and .y and general clean up of initiated variables
 
 	int shutUp = 0;
 	int printer;
 	private Vector2d squareStart = new Vector2d(150, 320);
-	
+
 	private int speed = 200;
 	//**GEOMETRY**\\
 	//center of our square
@@ -62,7 +70,7 @@ public class NowAddPathFinding {
 	RegPolyGen square = new RegPolyGen(4, SquareSide, angles, SquareCenter); //angle is always in rads	
 
 	CircleGen circle = new CircleGen(radius, CircleCenter);
-
+	
 	LineGen line1 = new LineGen(new Vector2d(0,0), new Vector2d(0, worldDim.getY()));//0,0 going up
 	LineGen line2 = new LineGen(new Vector2d(0,0), new Vector2d(worldDim.getX(), 0));//0,0 going right
 	LineGen line3 = new LineGen(new Vector2d(worldDim.getX(), worldDim.getY()),
@@ -87,6 +95,7 @@ public class NowAddPathFinding {
 	int store = 0;
 	Vector2d[] storage = new Vector2d[100];
 	CircleGen kasaCircle;
+	LineGen lsLine;
 	Collision collider = new Collision();
 	//**Path Finder**\\
 	int numCollisions = 0;
@@ -206,7 +215,7 @@ public class NowAddPathFinding {
 				square.getCenter().getX() + S.x*512, square.getCenter().getY() + S.y*512);
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_K) && store > 3) {
-			kasaCircle = kasaCircleGuess(storage,store);
+			kasaCircle = kasaCircleGuess(storage, store);
 			if (shutUp%64==0) System.out.println("KASADATA CONFIRMATION LINE");
 			shutUp++;
 		}
@@ -216,6 +225,12 @@ public class NowAddPathFinding {
 					kasaCircle.getCenter().getY() + BorderOrigin.getY(), kasaCircle.getRadius());
 			if (shutUp%64==0) System.out.println("KASACIRCLE DRAWING CONFIRMATION LINE BUT WHERE IS CIRCLE");
 			shutUp++;
+		}else if (Keyboard.isKeyDown(Keyboard.KEY_F) && store > 3) {
+			GL11.glColor3f(1.0f,1.0f,1.0f);//Line of best Fit
+			GL11.glLineWidth(2.5f);
+			renderA.line(lsLine.getOrigin().getX() + BorderOrigin.getX() + BorderSize.getX(), lsLine.getOrigin().getY(), 
+					lsLine.getVector().getX() + lsLine.getOrigin().getX() + BorderOrigin.getX() + BorderSize.getX(), lsLine.getVector().getY() + lsLine.getOrigin().getY());
+			System.out.println(lsLine.getVector());
 		}
 
 		square.setAngleRads(square.getAngleRads() + 0.001);
@@ -333,6 +348,22 @@ public class NowAddPathFinding {
 		return kasaData;
 	}
 
+	public LineGen leastSquareLineGuess(Vector2d[] data, int iterate){
+		double mX = 0,mY = 0,sumX2 = 0,sumXY = 0;//hotmath.com/hotmath_help/topics/line-of-best-fit.html
+
+		for(int n = 0; n < iterate; n++){
+			mX += data[n].getX();
+			mY += data[n].getY();
+		}
+
+		for(int n = 0; n < iterate; n++){
+			sumX2 +=  Math.pow(data[n].getX() - mX,2);
+			sumXY += (data[n].getX() - mX)*(data[n].getY() - mY);
+		}
+		
+		return new LineGen(data[0].integizerCeil(), new Vector2d(sumX2, sumXY));//min and max points don't matter yet
+	}
+
 	public void adding(Vector2d CircleCenterB, int iterate) {
 		if (iterate > 0) {
 			for(int IT = 0; IT < iterate; IT++) {
@@ -369,56 +400,89 @@ public class NowAddPathFinding {
 				S.y *= 0.9 + 0.2*Math.random();
 			}
 		}
-		System.out.println(S);
+		//System.out.println(S);
 	}
-	
+	//make it so that the shape avoids repeats and if repeat does heppen just retry
+	//stop rotate when reversing
 	public Vector2d pathFinder(boolean collision){//reorder for speed
-		if (collision & numCollisions == 0 & reverseSteps == 0) {//collision and calc how far back to move
-			numCollisions += 1;
+		if (collision & numCollisions == 0) {//collision and calc how far back to move
+			System.out.println(1);
+			numCollisions += 1;			
 			S.setX(-1*S.getX());
 			S.setY(-1*S.getY());//reverse needs to take into account spinning collisions and weird shapes plus hitting other shapes
 			reverseSteps = Math.min(square.getLongDistAcross(),square.getCenter().dist(squareStart))/S.magnitude();
 			return S;
 			//what about going back and holding down on gin back only
+		} else if (collision & numCollisions == 1){
+			System.out.println(5);
+			numCollisions += 1;
+			S.setX(-1*S.getX());
+			S.setY(-1*S.getY());//reverse needs to take into account spinning collisions and weird shapes plus hitting other shapes
+			reverseSteps = Math.min(square.getLongDistAcross(),square.getCenter().dist(squareStart))/S.magnitude();
+			return S;
+		} else if (collision & numCollisions == 2){
+			System.out.println(9);
+			numCollisions += 1;
+			S.setX(-1*S.getX());
+			S.setY(-1*S.getY());//reverse needs to take into account spinning collisions and weird shapes plus hitting other shapes
+			reverseSteps = Math.min(square.getLongDistAcross(),square.getCenter().dist(squareStart))/S.magnitude();
+			return S;
+		} else if (collision & numCollisions == 3){
+			System.out.println(13);
+			numCollisions = 0;
+			S.setX(-1*S.getX());
+			S.setY(-1*S.getY());//reverse needs to take into account spinning collisions and weird shapes plus hitting other shapes
+			reverseSteps = Math.min(square.getLongDistAcross(),square.getCenter().dist(squareStart))/S.magnitude();
+			lsLine = leastSquareLineGuess(storage, store);
+			System.out.println(lsLine.getOrigin());
+			return S;
 		} else if(numCollisions == 1 & reverseSteps > 0) {//moving back
+			System.out.println(2);
 			reverseSteps -= 1;
 			return S;
-		}else if(numCollisions == 1 & reverseSteps < 0) {//calc direction forward to go to
+		} else if(numCollisions == 1 & reverseSteps < 0) {//calc direction forward to go to
+			System.out.println(3);
 			reverseSteps = 0;
 			S.setX(-1*S.getX());
 			S.setY(-1*S.getY());
 			double tempAngle = Math.atan(square.getShortDistAcross()/Math.min(square.getLongDistAcross(),square.getCenter().dist(squareStart)));
 			S.rotate(tempAngle*(2*Math.random()-1));
 			return S;
-		}else if(numCollisions == 1 & reverseSteps == 0){//need it? Go back
-			return S;
-		}else if (collision & numCollisions == 1 & reverseSteps == 0 ){
-			System.out.println("second collision");
-			numCollisions += 1;
-			S.setX(-1*S.getX());
-			S.setY(-1*S.getY());//reverse needs to take into account spinning collisions and weird shapes plus hitting other shapes
-			reverseSteps = Math.min(square.getLongDistAcross(),square.getCenter().dist(squareStart))/S.magnitude();
+		} else if(numCollisions == 1 & reverseSteps == 0){//need it? Go back
+			System.out.println(4);
 			return S;
 		} else if(numCollisions == 2 & reverseSteps > 0) { 
+			System.out.println(6);
 			reverseSteps -= 1;
 			return S;
-		}else if(numCollisions == 2 & reverseSteps < 0) {
+		} else if(numCollisions == 2 & reverseSteps < 0) {
+			System.out.println(7);
 			reverseSteps = 0;
 			S.setX(-1*S.getX());
 			S.setY(-1*S.getY());
 			double tempAngle = Math.atan(square.getShortDistAcross()/Math.min(square.getLongDistAcross(),square.getCenter().dist(squareStart)));
 			S.rotate(tempAngle*(2*Math.random()-1));
 			return S;
-		}else if(numCollisions == 2 & reverseSteps == 0){//need it?
+		} else if(numCollisions == 2 & reverseSteps == 0){//need it?
+			System.out.println(8);
 			return S;
-		}else if (collision & numCollisions == 2 & reverseSteps == 0 ){
-			numCollisions += 1;
+		} else if(numCollisions == 3 & reverseSteps > 0) {//moving back
+			System.out.println(10);
+			reverseSteps -= 1;
+			return S;
+		} else if(numCollisions == 3 & reverseSteps < 0) {//calc direction forward to go to
+			System.out.println(11);
+			reverseSteps = 0;
 			S.setX(-1*S.getX());
-			S.setY(-1*S.getY());//reverse needs to take into account spinning collisions and weird shapes plus hitting other shapes
-			reverseSteps = Math.min(square.getLongDistAcross(),square.getCenter().dist(squareStart))/S.magnitude();
+			S.setY(-1*S.getY());
+			double tempAngle = Math.atan(square.getShortDistAcross()/Math.min(square.getLongDistAcross(),square.getCenter().dist(squareStart)));
+			S.rotate(tempAngle*(2*Math.random()-1));
+			return S;
+		} else if(numCollisions == 3 & reverseSteps == 0){//need it? Go back
+			System.out.println(12);
 			return S;
 		}
-		
+
 		return S;
 	}
 
