@@ -1,3 +1,4 @@
+//David Govorko, 12/12/2014
 package attempt;
 
 //Depreciated for Vector2d

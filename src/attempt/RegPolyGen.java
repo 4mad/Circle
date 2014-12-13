@@ -1,3 +1,4 @@
+//David Govorko, 12/12/2014
 package attempt;
 
 public class RegPolyGen {	
@@ -9,6 +10,7 @@ public class RegPolyGen {
 	double longDistAcross;
 	double shortDistAcross;
 	Vector2d center;
+	Vector2d direction;
 	Vector2d[] vertexes;
 	//include vector2D in RegPolygon class
 
@@ -17,9 +19,18 @@ public class RegPolyGen {
 		lengthSide = 10;	
 		angleRads = 0;
 		center = new Vector2d(0,0);
+		direction = new Vector2d(0,0);
 		vertexes = this.generateVerts();
 		longDistAcross = this.longestDist();
 		shortDistAcross = this.shortestDist();
+	}
+
+	public Vector2d getDirection() {
+		return direction;
+	}
+
+	public void setDirection(Vector2d direction) {
+		this.direction = direction;
 	}
 
 	public double getAngleRads() {
@@ -46,6 +57,18 @@ public class RegPolyGen {
 		vertexes = this.generateVerts();
 		longDistAcross = this.longestDist();
 		shortDistAcross = this.shortestDist();
+		direction = new Vector2d(0,0);
+	}
+	
+	public RegPolyGen(int numofSides, double lengthofSide, double angleSizeRad, Vector2d directionVector, Vector2d centerPoint) {
+		numberSides = numofSides;
+		lengthSide = lengthofSide;		
+		angleRads = angleSizeRad;
+		center = centerPoint;
+		vertexes = this.generateVerts();
+		longDistAcross = this.longestDist();
+		shortDistAcross = this.shortestDist();
+		direction = directionVector;
 	}
 
 	public double getLongDistAcross() {
@@ -79,6 +102,10 @@ public class RegPolyGen {
 	public void setLengthSide(double lengthSide) {
 		this.lengthSide = lengthSide;
 	}	
+	
+	public void move(){
+		this.center = this.center.add(this.direction);
+	}
 
 	public Vector2d[] generateVerts(){
 		Vector2d[] verts = new Vector2d[this.getNumberSides()];//make it so that it starts in "regular" position

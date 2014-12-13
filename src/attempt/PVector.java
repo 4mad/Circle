@@ -1,3 +1,4 @@
+//David Govorko, 12/12/2014
 package attempt;
 //Depreciated since Vector2d and PointDir has "replaced" it
 public class PVector {
