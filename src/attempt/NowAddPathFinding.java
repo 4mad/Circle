@@ -241,7 +241,7 @@ public class NowAddPathFinding {
 		double AB =  (square.getLengthSide()/2*Math.sqrt(2) + circle.getRadius()); //stays here
 		//Is using distance as first check necessary, or should collision always be detected? 
 		if (line1.linePointDist(square.getCenter()) < square.getLongDistAcross() & collider.LinePoly(line1, square) != null) {
-			System.out.println(square.getDirection());
+			//System.out.println(square.getDirection());
 			pathFinder(adding(collider.LinePoly(line1, square), store));
 		}
 		else if (line2.linePointDist(square.getCenter()) < square.getLongDistAcross() & collider.LinePoly(line2, square) != null) {
@@ -309,7 +309,6 @@ public class NowAddPathFinding {
 		// input  apache math library for covaraiance and see if it is faster.
 		return kasaData;
 	}
-	
 
 	public LineGen leastSquareLineGuess(Vector2d[] data, int iterate){
 		double mX = 0,mY = 0,sumX2 = 0,sumXY = 0;//hotmath.com/hotmath_help/topics/line-of-best-fit.html
@@ -347,7 +346,7 @@ public class NowAddPathFinding {
 			store++;
 			hit = true;
 		}
-		for(int IT = 0; IT < iterate; IT++) System.out.println(storage[IT]);
+		for(int IT = 0; IT <= iterate; IT++) System.out.println(storage[IT]);
 		return hit;
 	}
 	
@@ -386,7 +385,7 @@ public class NowAddPathFinding {
 			square.setDirection(square.getDirection().scalarMulti(-1));//reverse needs to take into account spinning collisions and weird shapes plus hitting other shapes
 			reverseSteps = 0;
 			lsLine = leastSquareLineGuess(storage, store);
-			System.out.println(lsLine.getOrigin());
+			//System.out.println(lsLine.getOrigin());
 		} else if(reverseSteps > 0) {//moving back
 			System.out.println(2);
 			reverseSteps--;
@@ -396,7 +395,7 @@ public class NowAddPathFinding {
 			square.setDirection(square.getDirection().scalarMulti(-1));
 			double tempAngle = Math.atan(square.getShortDistAcross()/Math.min(square.getLongDistAcross(),square.getCenter().dist(squareStart)));
 			square.getDirection().rotate(tempAngle*(2*Math.random()-1));
-			System.out.println(square.getDirection());
+			//System.out.println(square.getDirection());
 		}
 	}
 
