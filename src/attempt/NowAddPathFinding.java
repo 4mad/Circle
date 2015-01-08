@@ -45,8 +45,7 @@ public class NowAddPathFinding {
 	
 						//What i'm doing now
 	//Figure out why Pathfinder won't change return angle 
-	//expand on pathfinding to recognize circles in addition to arches
-	//??WHYYYYYY IS COLLISON DATA POINT 1 WRONG???
+	//expand on pathfinding to recognize circles and arches
 	//Change Square start to change with pathfinder
 	//make sure to use .GEt and .Set instead of .x and .y and general clean up of initiated variables
 
@@ -70,7 +69,7 @@ public class NowAddPathFinding {
 	Vector2d CollisionPoint = new Vector2d(0, 0);
 	//Border size
 	Vector2d BorderSize = new Vector2d(66, 640);
-	//Offset for anything drawn on second "world" ///////////////////////FIX THAT TODAY
+	//Offset for anything drawn on second "world"
 	Vector2d BorderOrigin = new Vector2d(worldDim.getX(), 0);	
 	//Virtual lines at the borders of the map
 	LineGen line1 = new LineGen(new Vector2d(0,0), new Vector2d(0, worldDim.getY()));//0,0 going up
@@ -394,8 +393,12 @@ public class NowAddPathFinding {
 			reverseSteps = 0;
 			square.setDirection(square.getDirection().scalarMulti(-1));
 			double tempAngle = Math.atan(square.getShortDistAcross()/Math.min(square.getLongDistAcross(),square.getCenter().dist(squareStart)));
-			square.getDirection().rotate(tempAngle*(2*Math.random()-1));
+			square.getDirection().rotate(tempAngle*(2*Math.random() - 1));
 			//System.out.println(square.getDirection());
+		} else if(numCollisions > 0){
+			System.out.println(-1);
+			square.setDirection(square.getDirection().scalarMulti(-1));//reverse needs to take into account spinning collisions and weird shapes plus hitting other shapes
+			reverseSteps = Math.min(square.getLongDistAcross(),square.getCenter().dist(squareStart))/square.getDirection().magnitude();
 		}
 	}
 
