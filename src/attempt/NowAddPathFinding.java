@@ -229,7 +229,7 @@ public class NowAddPathFinding {
 			GL11.glLineWidth(2.5f);
 			renderA.line(lsLine.getOrigin().getX() + BorderOrigin.getX() + BorderSize.getX(), lsLine.getOrigin().getY(), 
 					lsLine.getVector().getX() + lsLine.getOrigin().getX() + BorderOrigin.getX() + BorderSize.getX(), lsLine.getVector().getY() + lsLine.getOrigin().getY());
-			//System.out.println(lsLine.getVector());
+			 System.out.println(lsLine.getVector());
 		}
 
 		square.setAngleRads(square.getAngleRads() + 0.001);
@@ -318,7 +318,7 @@ public class NowAddPathFinding {
 		}
 
 		for(int n = 0; n < iterate; n++){
-			sumX2 +=  Math.pow(data[n].getX() - mX,2);
+			sumX2 +=  Math.pow(data[n].getX() - mX, 2);
 			sumXY += (data[n].getX() - mX)*(data[n].getY() - mY);
 		}
 		
@@ -395,11 +395,11 @@ public class NowAddPathFinding {
 			double tempAngle = Math.atan(square.getShortDistAcross()/Math.min(square.getLongDistAcross(),square.getCenter().dist(squareStart)));
 			square.getDirection().rotate(tempAngle*(2*Math.random() - 1));
 			//System.out.println(square.getDirection());
-		} else if(numCollisions > 0){
-			System.out.println(-1);
-			square.setDirection(square.getDirection().scalarMulti(-1));//reverse needs to take into account spinning collisions and weird shapes plus hitting other shapes
-			reverseSteps = Math.min(square.getLongDistAcross(),square.getCenter().dist(squareStart))/square.getDirection().magnitude();
-		}
+		}// else if(numCollisions > 0){
+		//	System.out.println(-1);
+		//	square.setDirection(square.getDirection().scalarMulti(-1));//reverse needs to take into account spinning collisions and weird shapes plus hitting other shapes
+		//	reverseSteps = Math.min(square.getLongDistAcross(),square.getCenter().dist(squareStart))/square.getDirection().magnitude();
+		//}
 	}
 
 	public static void main(String[] args) {

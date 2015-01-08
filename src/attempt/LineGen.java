@@ -2,7 +2,7 @@
 package attempt;
 
 public class LineGen {
-	// make it so that it can calculate tangent lines and maybe put distance function here
+	//maybe put distance function here?
 	Vector2d origin;
 	Vector2d vector;
 	
